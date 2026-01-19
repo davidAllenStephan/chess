@@ -24,3 +24,4 @@ BOARD --> PIECE ==> [PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING]
 - Rule 3: a piece who does not share the same color as another piece can capture it.
 
 To be continued...
+Testing something
