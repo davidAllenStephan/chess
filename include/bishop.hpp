@@ -1,0 +1,23 @@
+#ifndef BISHOP
+#define BISHOP
+
+#include "piece.hpp"
+
+class bishop : public piece {
+      public:
+        bishop(int rank, int file, COLOR color) {
+                this->rank = rank;
+                this->file = file;
+                this->value = 3;
+                this->color = color;
+                this->fen = color == WHITE ? "B" : "b";
+                this->texture_id = color == WHITE ? texture_manager::getOrLoad(WHITE_BISHOP) : texture_manager::getOrLoad(BLACK_BISHOP);
+        }
+
+        void update_color(COLOR color) override {
+                this->color = color;
+                this->texture_id = color == WHITE ? texture_manager::getOrLoad(WHITE_BISHOP) : texture_manager::getOrLoad(BLACK_BISHOP);
+        }
+};
+
+#endif
