@@ -12,6 +12,7 @@ class king : public piece {
                 this->color = color;
                 this->fen = color == WHITE ? "K" : "k";
                 this->texture_id = color == WHITE ? texture_manager::getOrLoad(WHITE_KING) : texture_manager::getOrLoad(BLACK_KING);
+                this->move_mask = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
         }
 
         void update_color(COLOR color) override {
