@@ -39,18 +39,18 @@ enum TEXTURE {
 };
 
 inline std::unordered_map<TEXTURE, const char *> texture_filename_map = {
-    {WHITE_PAWN, "../assets/white_pawn.png"},
-    {WHITE_KNIGHT, "../assets/white_knight.png"},
-    {WHITE_BISHOP, "../assets/white_bishop.png"},
-    {WHITE_ROOK, "../assets/white_rook.png"},
-    {WHITE_QUEEN, "../assets/white_queen.png"},
-    {WHITE_KING, "../assets/white_king.png"},
-    {BLACK_PAWN, "../assets/black_pawn.png"},
-    {BLACK_KNIGHT, "../assets/black_knight.png"},
-    {BLACK_BISHOP, "../assets/black_bishop.png"},
-    {BLACK_ROOK, "../assets/black_rook.png"},
-    {BLACK_QUEEN, "../assets/black_queen.png"},
-    {BLACK_KING, "../assets/black_king.png"}
+    {WHITE_PAWN, "../assets/sprites/white_pawn.png"},
+    {WHITE_KNIGHT, "../assets/sprites/white_knight.png"},
+    {WHITE_BISHOP, "../assets/sprites/white_bishop.png"},
+    {WHITE_ROOK, "../assets/sprites/white_rook.png"},
+    {WHITE_QUEEN, "../assets/sprites/white_queen.png"},
+    {WHITE_KING, "../assets/sprites/white_king.png"},
+    {BLACK_PAWN, "../assets/sprites/black_pawn.png"},
+    {BLACK_KNIGHT, "../assets/sprites/black_knight.png"},
+    {BLACK_BISHOP, "../assets/sprites/black_bishop.png"},
+    {BLACK_ROOK, "../assets/sprites/black_rook.png"},
+    {BLACK_QUEEN, "../assets/sprites/black_queen.png"},
+    {BLACK_KING, "../assets/sprites/black_king.png"}
 
 };
 

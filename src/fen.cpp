@@ -13,7 +13,6 @@
 #include <cstddef>
 #include <cstdio>
 #include <memory>
-#include <utility>
 
 using namespace std;
 
@@ -33,42 +32,35 @@ board *read_fen(const char *path) {
                         rank--;
                         continue;
                 }
-
                 if (isdigit(c)) {
                         file += c - '0';
                         continue;
                 }
-
                 COLOR color = isupper(c) ? WHITE : BLACK;
-
-                piece *p;
-
+                unique_ptr<piece> p = nullptr;
                 switch (tolower(c)) {
                 case 'p':
-                        p = new pawn(rank, file, color);
+                        p = make_unique<pawn>(rank, file, color);
                         break;
                 case 'n':
-                        p = new knight(rank, file, color);
+                        p = make_unique<knight>(rank, file, color);
                         break;
                 case 'b':
-                        p = new bishop(rank, file, color);
+                        p = make_unique<bishop>(rank, file, color);
                         break;
                 case 'r':
-                        p = new rook(rank, file, color);
+                        p = make_unique<rook>(rank, file, color);
                         break;
                 case 'q':
-                        p = new queen(rank, file, color);
+                        p = make_unique<queen>(rank, file, color);
                         break;
                 case 'k':
-                        p = new king(rank, file, color);
+                        p = make_unique<king>(rank, file, color);
                         break;
                 }
-
                 if (p) {
-                        b->insert_piece_map(p);
-                        b->insert_placement(p);
+                        b->insert_piece(std::move(p));
                 }
-
                 file++;
         }
         b->print_board();

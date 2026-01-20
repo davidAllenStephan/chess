@@ -3,7 +3,7 @@
 
 #include "../include/state_manager.hpp"
 
-state_manager::state_manager() : selected(NULL) {};
+state_manager::state_manager() : selected(nullptr) {};
 
 state_manager &state_manager::instance() {
         static state_manager instance;

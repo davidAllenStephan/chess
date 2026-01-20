@@ -5,6 +5,8 @@
 #include "uuid.hpp"
 #include <cstddef>
 #include <string>
+#include <utility>
+#include <vector>
 
 using namespace std;
 
@@ -22,12 +24,12 @@ class piece {
         int file;
         int value;
         COLOR color;
-        int *move_mask;
+	vector<pair<int,int>> move_mask;
         int texture_id;
 
         piece();
         virtual void update_color(COLOR color);
-        virtual ~piece();
+        virtual ~piece() = default;
 };
 
 #endif

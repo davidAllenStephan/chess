@@ -1,17 +1,36 @@
 #ifndef BOARD_CPP
 #define BOARD_CPP
+
 #include "../include/board.hpp"
 #include "../include/uuid.hpp"
 #include "state_manager.hpp"
 #include <GLUT/glut.h>
 #include <OpenGL/gl3.h>
 #include <cstdio>
+#include <memory>
 #include <utility>
 #include <vector>
 
 using namespace std;
 
 void draw_square(double pos_x, double pos_y, double width, double height, double window_width, double window_height) {
+        pos_x = pos_x * width;
+        pos_y = pos_y * width;
+        pos_x -= window_width;
+        pos_y -= window_height;
+        vector<array<double, 2>> vertices = {
+            {pos_x, pos_y},
+            {pos_x, pos_y + height},
+            {pos_x + width, pos_y + height},
+            {pos_x + width, pos_y}};
+        glBegin(GL_POLYGON);
+        for (int i = 0; i < vertices.size(); i++) {
+                glVertex2d(vertices[i][0] / window_width, vertices[i][1] / window_height);
+        }
+        glEnd();
+}
+
+void draw_overlay(double pos_x, double pos_y, double width, double height, double window_width, double window_height) {
         pos_x = pos_x * width;
         pos_y = pos_y * width;
         pos_x -= window_width;
@@ -91,16 +110,32 @@ void board::draw_texture(int texture_id, double pos_x, double pos_y, int window_
         glDisable(GL_TEXTURE_2D);
 }
 
+void draw_places(piece *p) {
+}
+
 void board::handle_mouse(int button, int state, int x, int y, int window_width, int window_height) {
         if (state == GLUT_DOWN) {
+                glColor3f(1, 0, 0);
                 int pos_x = x / (window_height / 8);
                 int pos_y = 7 - (y / (window_height / 8));
                 if (this->placement[pos_y][pos_x] != "") {
-                        printf("%s, %i, %i\n", this->pieces.at(this->placement[pos_y][pos_x])->id.c_str(), pos_y, pos_x);
-                        state_manager::instance().selected = this->pieces.at(this->placement[pos_y][pos_x]);
+                        if (state_manager::instance().selected != NULL && this->pieces.at(this->placement[pos_y][pos_x])->color != state_manager::instance().selected->color) {
+                                this->pieces.erase(this->placement[pos_y][pos_x]);
+                                piece *p = this->pieces.at(state_manager::instance().selected->id).get();
+                                this->placement[p->rank][p->file] = "";
+                                this->placement[pos_y][pos_x] = p->id;
+                                p->rank = pos_y;
+                                p->file = pos_x;
+                                state_manager::instance().selected = NULL;
+                        } else if (state_manager::instance().selected == NULL) {
+                                piece *selected_piece = this->pieces.at(this->placement[pos_y][pos_x]).get();
+                                state_manager::instance().selected = selected_piece;
+                        }
+                        // printf("%s, %i, %i\n", this->pieces.at(this->placement[pos_y][pos_x])->id.c_str(), pos_y, pos_x);
                 } else if (this->placement[pos_y][pos_x] == "") {
-                        piece *p = state_manager::instance().selected;
+                        piece *p = this->pieces.at(state_manager::instance().selected->id).get();
                         this->placement[p->rank][p->file] = "";
+                        this->placement[pos_y][pos_x] = p->id;
                         p->rank = pos_y;
                         p->file = pos_x;
                         state_manager::instance().selected = NULL;
@@ -108,12 +143,11 @@ void board::handle_mouse(int button, int state, int x, int y, int window_width, 
         }
 }
 
-void board::insert_piece_map(piece *p) {
-        this->pieces.insert({p->id, p});
-}
-
-void board::insert_placement(piece *p) {
+void board::insert_piece(unique_ptr<piece> p) {
+        // std::cout << "Loading piece id=" << p->id << " at rank=" << p->rank << " file=" << p->file << std::endl;
         this->placement[p->rank][p->file] = p->id;
+        string id = p->id;
+        pieces.emplace(id, std::move(p));
 }
 
 #endif
