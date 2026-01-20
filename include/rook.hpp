@@ -1,3 +1,4 @@
+#include "movement_mask.hpp"
 #include "piece.hpp"
 
 #ifndef ROOK
@@ -11,6 +12,7 @@ class rook : public piece {
                 this->value = 5;
                 this->color = color;
                 this->fen = color == WHITE ? "R" : "r";
+                this->mask = movement_mask::rook;
                 this->texture_id = color == WHITE ? texture_manager::getOrLoad(WHITE_ROOK) : texture_manager::getOrLoad(BLACK_ROOK);
         }
 

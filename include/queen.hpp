@@ -1,6 +1,7 @@
 #ifndef QUEEN
 #define QUEEN
 
+#include "movement_mask.hpp"
 #include "piece.hpp"
 class queen : public piece {
       public:
@@ -10,6 +11,7 @@ class queen : public piece {
                 this->value = 9;
                 this->color = color;
                 this->fen = color == WHITE ? "Q" : "q";
+                this->mask = movement_mask::queen;
                 this->texture_id = color == WHITE ? texture_manager::getOrLoad(WHITE_QUEEN) : texture_manager::getOrLoad(BLACK_QUEEN);
         }
 

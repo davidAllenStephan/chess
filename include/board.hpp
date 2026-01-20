@@ -21,7 +21,12 @@ class board {
         void draw_board(int window_width, int window_height);
         void draw_cell(int pos_x, int pos_y, int width, int height, int window_width, int window_height);
         void draw_texture(int texture_id, double pos_x, double pos_y, int window_width, int window_height);
+
         void handle_mouse(int button, int state, int x, int y, int window_width, int window_height);
+        void handle_take_piece(int rank, int file);
+        void handle_select_piece(int rank, int file);
+        void handle_move_piece(int rank, int file);
+
         void insert_piece(unique_ptr<piece> p);
 };
 

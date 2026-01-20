@@ -1,6 +1,7 @@
 #ifndef KNIGHT
 #define KNIGHT
 
+#include "movement_mask.hpp"
 #include "piece.hpp"
 class knight : public piece {
       public:
@@ -10,6 +11,7 @@ class knight : public piece {
                 this->value = 3;
                 this->color = color;
                 this->fen = color == WHITE ? "N" : "n";
+                this->mask = movement_mask::knight;
                 this->texture_id = color == WHITE ? texture_manager::getOrLoad(WHITE_KNIGHT) : texture_manager::getOrLoad(BLACK_KNIGHT);
         }
 
@@ -17,6 +19,7 @@ class knight : public piece {
                 this->color = color;
                 this->texture_id = color == WHITE ? texture_manager::getOrLoad(WHITE_KNIGHT) : texture_manager::getOrLoad(BLACK_KNIGHT);
         }
+
 };
 
 #endif
