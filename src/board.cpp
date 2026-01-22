@@ -7,7 +7,9 @@
 #include <GLUT/glut.h>
 #include <OpenGL/gl3.h>
 #include <cstdio>
+#include <iostream>
 #include <memory>
+#include <ostream>
 #include <utility>
 #include <vector>
 
@@ -113,30 +115,47 @@ void board::draw_texture(int texture_id, double pos_x, double pos_y, int window_
 void draw_places(piece *p) {
 }
 
-void board::handle_take_piece(int rank, int file) {
-        this->pieces.erase(this->placement[rank][file]);
-        piece *p = this->pieces.at(state_manager::instance().selected->id).get();
-        this->placement[p->rank][p->file] = "";
-        this->placement[rank][file] = p->id;
-        p->rank = rank;
-        p->file = file;
-        state_manager::instance().selected = NULL;
+void board::replace_piece(string select_piece_id, string target_piece_id) {
+        int select_piece_rank = this->pieces.at(select_piece_id)->rank;
+        int select_piece_file = this->pieces.at(select_piece_id)->file;
+        int target_piece_rank = this->pieces.at(target_piece_id)->rank;
+        int target_piece_file = this->pieces.at(target_piece_id)->file;
+        this->placement[select_piece_rank][select_piece_file] = "";
+        this->placement[target_piece_rank][target_piece_file] = select_piece_id;
+        this->pieces.at(select_piece_id)->rank = target_piece_rank;
+        this->pieces.at(select_piece_id)->file = target_piece_file;
 }
 
-void board::handle_select_piece(int rank, int file) {
-        state_manager::instance().selected = this->pieces.at(this->placement[rank][file]).get();
+void board::update_piece(string select_piece_id, int rank, int file) {
+        int select_piece_rank = this->pieces.at(select_piece_id)->rank;
+        int select_piece_file = this->pieces.at(select_piece_id)->file;
+        this->placement[select_piece_rank][select_piece_file] = "";
+        this->placement[rank][file] = select_piece_id;
+        this->pieces.at(select_piece_id)->rank = rank;
+        this->pieces.at(select_piece_id)->file = file;
 }
 
-void board::handle_move_piece(int rank, int file) {
-        piece *p = this->pieces.at(state_manager::instance().selected->id).get();
-	if (p->valid_move(rank, file) == false) {
-		return;
-	}
-        this->placement[p->rank][p->file] = "";
-        this->placement[rank][file] = p->id;
-        p->rank = rank;
-        p->file = file;
-        state_manager::instance().selected = NULL;
+void board::handle_take_piece(string select_piece_id, string target_piece_id) {
+        int target_piece_rank = this->pieces.at(target_piece_id)->rank;
+        int target_piece_file = this->pieces.at(target_piece_id)->file;
+        if (!this->pieces.at(select_piece_id)->valid_move(target_piece_rank, target_piece_file)) {
+                return;
+        }
+        replace_piece(select_piece_id, target_piece_id);
+        this->pieces.erase(target_piece_id);
+        state_manager::instance().selected = "";
+}
+
+void board::handle_select_piece(string target_piece_id) {
+        state_manager::instance().selected = target_piece_id;
+}
+
+void board::handle_move_piece(string select_piece_id, int rank, int file) {
+        if (!this->pieces.at(select_piece_id)->valid_move(rank, file)) {
+                return;
+        }
+        update_piece(select_piece_id, rank, file);
+        state_manager::instance().selected = "";
 }
 
 void board::handle_mouse(int button, int state, int x, int y, int window_width, int window_height) {
@@ -144,17 +163,19 @@ void board::handle_mouse(int button, int state, int x, int y, int window_width, 
                 return;
         }
 
-        // determine rank and file
         int file = x / (window_height / 8);
         int rank = 7 - (y / (window_height / 8));
 
         bool isEmpty = this->placement[rank][file] == "" ? true : false;
-        bool isSelected = state_manager::instance().selected == NULL ? false : true;
+        bool isSelected = state_manager::instance().selected == "" ? false : true;
         bool isSameColor = false;
 
+
+        string select_piece_id = state_manager::instance().selected;
+        string target_piece_id = this->placement[rank][file];
+
         if (isSelected && !isEmpty) {
-                // printf("isSelected && !isEmpty\n");
-                isSameColor = this->pieces.at(this->placement[rank][file])->color == state_manager::instance().selected->color ? true : false;
+                isSameColor = this->pieces.at(this->placement[rank][file])->color == this->pieces.at(state_manager::instance().selected)->color ? true : false;
         }
 
         if (!isSelected && isEmpty) {
@@ -162,20 +183,17 @@ void board::handle_mouse(int button, int state, int x, int y, int window_width, 
         }
 
         if (isSelected && !isSameColor && !isEmpty) {
-                // printf("isSelected && !isSameColor && !isEmpty\n");
-                handle_take_piece(rank, file);
+                handle_take_piece(select_piece_id, target_piece_id);
                 return;
         }
 
         if (isSelected && isEmpty) {
-                // printf("isSelected && isEmpty\n");
-                handle_move_piece(rank, file);
+                handle_move_piece(select_piece_id, rank, file);
                 return;
         }
 
         if (!isSelected) {
-                // printf("!isSelected\n");
-                handle_select_piece(rank, file);
+                handle_select_piece(target_piece_id);
                 return;
         }
 }

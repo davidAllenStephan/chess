@@ -23,7 +23,7 @@ class piece {
         int file;
         int value;
         COLOR color;
-	vector<pair<int, int>> mask;
+        vector<pair<int, int>> mask;
         int texture_id;
 
         virtual bool valid_move(int rank, int file);

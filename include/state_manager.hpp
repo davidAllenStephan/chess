@@ -1,12 +1,13 @@
 #ifndef STATE_MANAGER_HPP
 #define STATE_MANAGER_HPP
 
-#include "piece.hpp"
+#include <string>
+using namespace std;
 
 class state_manager {
       public:
         static state_manager &instance();
-        piece *selected;
+        string selected;
 
       private:
         state_manager();

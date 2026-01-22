@@ -23,9 +23,12 @@ class board {
         void draw_texture(int texture_id, double pos_x, double pos_y, int window_width, int window_height);
 
         void handle_mouse(int button, int state, int x, int y, int window_width, int window_height);
-        void handle_take_piece(int rank, int file);
-        void handle_select_piece(int rank, int file);
-        void handle_move_piece(int rank, int file);
+        void handle_take_piece(string select_piece_id, string target_piece_id);
+        void handle_select_piece(string target_piece_id);
+        void handle_move_piece(string select_piece_id, int rank, int file);
+
+        void replace_piece(string select_piece_id, string target_piece_id);
+        void update_piece(string select_piece_id, int rank, int file);
 
         void insert_piece(unique_ptr<piece> p);
 };

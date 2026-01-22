@@ -13,6 +13,7 @@ class pawn : public piece {
 		// TODO:
 		// e'passant
 		// double
+		// capture
                 if (color == WHITE) {
                         this->mask = {{1, 0}};
                 } else if (color == BLACK) {
