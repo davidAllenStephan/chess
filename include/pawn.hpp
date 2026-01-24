@@ -10,10 +10,10 @@ class pawn : public piece {
                 this->value = 1;
                 this->color = color;
                 this->fen = color == WHITE ? "P" : "p";
-		// TODO:
-		// e'passant
-		// double
-		// capture
+                // TODO:
+                // e'passant
+                // double
+                // capture
                 if (color == WHITE) {
                         this->mask = {{1, 0}};
                 } else if (color == BLACK) {

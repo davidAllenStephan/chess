@@ -63,7 +63,6 @@ board *read_fen(const char *path) {
                 }
                 file++;
         }
-        b->print_board();
         return b;
 }
 

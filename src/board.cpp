@@ -6,10 +6,8 @@
 #include "state_manager.hpp"
 #include <GLUT/glut.h>
 #include <OpenGL/gl3.h>
-#include <cstdio>
-#include <iostream>
+#include <cstdlib>
 #include <memory>
-#include <ostream>
 #include <utility>
 #include <vector>
 
@@ -69,6 +67,14 @@ void board::draw_board(int window_width, int window_height) {
                         }
                         draw_square(i, j, cell_scale, cell_scale, window_width, window_height);
                 }
+        }
+
+        string select_piece_id;
+        if ((select_piece_id = state_manager::instance().selected) != "") {
+                int select_piece_rank = this->pieces.at(select_piece_id)->rank;
+                int select_piece_file = this->pieces.at(select_piece_id)->file;
+                glColor3f(1, 0, 0);
+                draw_square(select_piece_file, select_piece_rank, cell_scale, cell_scale, window_width, window_height);
         }
         for (const auto &piece : this->pieces) {
                 draw_texture(piece.second->texture_id, piece.second->file, piece.second->rank, window_width, window_height);
@@ -138,7 +144,7 @@ void board::update_piece(string select_piece_id, int rank, int file) {
 void board::handle_take_piece(string select_piece_id, string target_piece_id) {
         int target_piece_rank = this->pieces.at(target_piece_id)->rank;
         int target_piece_file = this->pieces.at(target_piece_id)->file;
-        if (!this->pieces.at(select_piece_id)->valid_move(target_piece_rank, target_piece_file)) {
+        if (this->pieces.at(select_piece_id)->valid_move(target_piece_rank, target_piece_file) == (pair<int, int>){0, 0}) {
                 return;
         }
         replace_piece(select_piece_id, target_piece_id);
@@ -150,9 +156,37 @@ void board::handle_select_piece(string target_piece_id) {
         state_manager::instance().selected = target_piece_id;
 }
 
+bool board::block_piece(string select_piece_id, pair<int, int> valid_move) {
+        int select_rank = this->pieces.at(select_piece_id)->rank;
+        int select_file = this->pieces.at(select_piece_id)->file;
+        vector<pair<int, int>> paths;
+        for (int i = 1; i < (abs(valid_move.first) >= abs(valid_move.second) ? abs(valid_move.first) : abs(valid_move.second)); i++) {
+                paths.push_back({valid_move.first == 0 ? 0 : valid_move.first < 0 ? (-1 * (i % valid_move.first))
+                                                                                  : i % valid_move.first,
+                                 valid_move.second == 0 ? 0 : valid_move.second < 0 ? (-1 * (i % valid_move.second))
+                                                                                    : i % valid_move.second});
+        }
+        int j = 0;
+        for (pair<int, int> path : paths) {
+                j++;
+        }
+        for (pair<int, int> path : paths) {
+                if (this->placement[select_rank + path.first][select_file + path.second] != "") {
+                        return false;
+                }
+        }
+        return true;
+}
+
 void board::handle_move_piece(string select_piece_id, int rank, int file) {
-        if (!this->pieces.at(select_piece_id)->valid_move(rank, file)) {
+        pair<int, int> valid_move;
+        if ((valid_move = this->pieces.at(select_piece_id)->valid_move(rank, file)) == (pair<int, int>){0, 0}) {
                 return;
+        }
+        if (this->pieces.at(select_piece_id)->fen != "N" && this->pieces.at(select_piece_id)->fen != "n") {
+                if (!block_piece(select_piece_id, valid_move)) {
+                        return;
+                }
         }
         update_piece(select_piece_id, rank, file);
         state_manager::instance().selected = "";
@@ -170,12 +204,16 @@ void board::handle_mouse(int button, int state, int x, int y, int window_width, 
         bool isSelected = state_manager::instance().selected == "" ? false : true;
         bool isSameColor = false;
 
-
         string select_piece_id = state_manager::instance().selected;
         string target_piece_id = this->placement[rank][file];
 
         if (isSelected && !isEmpty) {
                 isSameColor = this->pieces.at(this->placement[rank][file])->color == this->pieces.at(state_manager::instance().selected)->color ? true : false;
+        }
+
+        if (isSelected && isSameColor) {
+                handle_select_piece(target_piece_id);
+                return;
         }
 
         if (!isSelected && isEmpty) {

@@ -29,8 +29,8 @@ class board {
 
         void replace_piece(string select_piece_id, string target_piece_id);
         void update_piece(string select_piece_id, int rank, int file);
-
         void insert_piece(unique_ptr<piece> p);
+	bool block_piece(string select_piece_id, pair<int, int> valid_move);
 };
 
 #endif

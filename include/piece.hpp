@@ -26,7 +26,7 @@ class piece {
         vector<pair<int, int>> mask;
         int texture_id;
 
-        virtual bool valid_move(int rank, int file);
+        virtual pair<int, int> valid_move(int rank, int file);
 
         piece();
         virtual void update_color(COLOR color);

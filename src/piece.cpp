@@ -19,13 +19,13 @@ void piece::update_color(COLOR color) {
         this->color = color;
 }
 
-bool piece::valid_move(int rank, int file) {
+pair<int, int> piece::valid_move(int rank, int file) {
         for (auto p : this->mask) {
                 if ((p.first + this->rank) == rank && (p.second + this->file) == file) {
-                        return true;
+                        return {p.first, p.second};
                 }
         }
-        return false;
+        return {0, 0};
 }
 
 #endif
