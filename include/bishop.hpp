@@ -12,7 +12,8 @@ class bishop : public piece {
                 this->value = 3;
                 this->color = color;
                 this->fen = color == WHITE ? "B" : "b";
-                this->mask = movement_mask::bishop;
+                this->movement_mask = movement_mask::bishop;
+		this->capture_mask = this->movement_mask;
                 this->texture_id = color == WHITE ? texture_manager::getOrLoad(WHITE_BISHOP) : texture_manager::getOrLoad(BLACK_BISHOP);
         }
 

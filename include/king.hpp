@@ -14,7 +14,8 @@ class king : public piece {
                 this->value = 0;
                 this->color = color;
                 this->fen = color == WHITE ? "K" : "k";
-                this->mask = movement_mask::king;
+                this->movement_mask = movement_mask::king;
+                this->capture_mask = this->movement_mask;
                 this->texture_id = color == WHITE ? texture_manager::getOrLoad(WHITE_KING) : texture_manager::getOrLoad(BLACK_KING);
         }
 

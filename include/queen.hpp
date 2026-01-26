@@ -11,7 +11,8 @@ class queen : public piece {
                 this->value = 9;
                 this->color = color;
                 this->fen = color == WHITE ? "Q" : "q";
-                this->mask = movement_mask::queen;
+                this->movement_mask = movement_mask::queen;
+		this->capture_mask = this->movement_mask;
                 this->texture_id = color == WHITE ? texture_manager::getOrLoad(WHITE_QUEEN) : texture_manager::getOrLoad(BLACK_QUEEN);
         }
 

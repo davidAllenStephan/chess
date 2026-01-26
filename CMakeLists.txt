@@ -38,6 +38,7 @@ set(SOURCES
 	src/piece.cpp
 	src/state_manager.cc
 	src/movement_mask.cpp
+	src/menu.cpp
 )
 add_library(lib OBJECT ${SOURCES})
 target_include_directories(lib PUBLIC ${PROJECT_SOURCE_DIR}/include)

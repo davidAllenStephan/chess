@@ -26,11 +26,13 @@ class board {
         void handle_take_piece(string select_piece_id, string target_piece_id);
         void handle_select_piece(string target_piece_id);
         void handle_move_piece(string select_piece_id, int rank, int file);
+        void handle_special_take_piece(string select_piece_id, string target_piece_id);
+        void handle_special_move_piece(string select_piece_id, int rank, int file);
 
         void replace_piece(string select_piece_id, string target_piece_id);
         void update_piece(string select_piece_id, int rank, int file);
         void insert_piece(unique_ptr<piece> p);
-	bool block_piece(string select_piece_id, pair<int, int> valid_move);
+        bool block_piece(string select_piece_id, pair<int, int> valid_move);
 };
 
 #endif

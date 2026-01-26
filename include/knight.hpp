@@ -11,7 +11,8 @@ class knight : public piece {
                 this->value = 3;
                 this->color = color;
                 this->fen = color == WHITE ? "N" : "n";
-                this->mask = movement_mask::knight;
+                this->movement_mask= movement_mask::knight;
+		this->capture_mask = this->movement_mask;
                 this->texture_id = color == WHITE ? texture_manager::getOrLoad(WHITE_KNIGHT) : texture_manager::getOrLoad(BLACK_KNIGHT);
         }
 

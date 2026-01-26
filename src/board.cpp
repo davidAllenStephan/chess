@@ -142,14 +142,41 @@ void board::update_piece(string select_piece_id, int rank, int file) {
 }
 
 void board::handle_take_piece(string select_piece_id, string target_piece_id) {
+        string select_piece_fen = this->pieces.at(select_piece_id)->fen;
         int target_piece_rank = this->pieces.at(target_piece_id)->rank;
         int target_piece_file = this->pieces.at(target_piece_id)->file;
-        if (this->pieces.at(select_piece_id)->valid_move(target_piece_rank, target_piece_file) == (pair<int, int>){0, 0}) {
+        pair<int, int> valid_move;
+        if ((valid_move = this->pieces.at(select_piece_id)->valid_capture(target_piece_rank, target_piece_file)) == (pair<int, int>){0, 0}) {
                 return;
+        }
+        if (this->pieces.at(select_piece_id)->fen != "N" && this->pieces.at(select_piece_id)->fen != "n") {
+                if (!block_piece(select_piece_id, valid_move)) {
+                        return;
+                }
         }
         replace_piece(select_piece_id, target_piece_id);
         this->pieces.erase(target_piece_id);
         state_manager::instance().selected = "";
+        this->pieces.at(select_piece_id)->moved++;
+}
+
+void board::handle_special_take_piece(string select_piece_id, string target_piece_id) {
+        string select_piece_fen = this->pieces.at(select_piece_id)->fen;
+        int target_piece_rank = this->pieces.at(target_piece_id)->rank;
+        int target_piece_file = this->pieces.at(target_piece_id)->file;
+        pair<int, int> valid_move;
+        if ((valid_move = this->pieces.at(select_piece_id)->valid_special_capture(target_piece_rank, target_piece_file)) == (pair<int, int>){0, 0}) {
+                return;
+        }
+        if (this->pieces.at(select_piece_id)->fen != "N" && this->pieces.at(select_piece_id)->fen != "n") {
+                if (!block_piece(select_piece_id, valid_move)) {
+                        return;
+                }
+        }
+        replace_piece(select_piece_id, target_piece_id);
+        this->pieces.erase(target_piece_id);
+        state_manager::instance().selected = "";
+        this->pieces.at(select_piece_id)->moved++;
 }
 
 void board::handle_select_piece(string target_piece_id) {
@@ -179,17 +206,39 @@ bool board::block_piece(string select_piece_id, pair<int, int> valid_move) {
 }
 
 void board::handle_move_piece(string select_piece_id, int rank, int file) {
+        string piece_fen = this->pieces.at(select_piece_id)->fen;
+        int piece_moved = this->pieces.at(select_piece_id)->moved;
+
         pair<int, int> valid_move;
         if ((valid_move = this->pieces.at(select_piece_id)->valid_move(rank, file)) == (pair<int, int>){0, 0}) {
                 return;
         }
-        if (this->pieces.at(select_piece_id)->fen != "N" && this->pieces.at(select_piece_id)->fen != "n") {
+        if (piece_fen != "N" && piece_fen != "n") {
                 if (!block_piece(select_piece_id, valid_move)) {
                         return;
                 }
         }
         update_piece(select_piece_id, rank, file);
         state_manager::instance().selected = "";
+        this->pieces.at(select_piece_id)->moved++;
+}
+
+void board::handle_special_move_piece(string select_piece_id, int rank, int file) {
+        string piece_fen = this->pieces.at(select_piece_id)->fen;
+        int piece_moved = this->pieces.at(select_piece_id)->moved;
+
+        pair<int, int> valid_move;
+        if ((valid_move = this->pieces.at(select_piece_id)->valid_move(rank, file)) == (pair<int, int>){0, 0}) {
+                return;
+        }
+        if (piece_fen != "N" && piece_fen != "n") {
+                if (!block_piece(select_piece_id, valid_move)) {
+                        return;
+                }
+        }
+        update_piece(select_piece_id, rank, file);
+        state_manager::instance().selected = "";
+        this->pieces.at(select_piece_id)->moved++;
 }
 
 void board::handle_mouse(int button, int state, int x, int y, int window_width, int window_height) {
@@ -206,38 +255,78 @@ void board::handle_mouse(int button, int state, int x, int y, int window_width, 
 
         string select_piece_id = state_manager::instance().selected;
         string target_piece_id = this->placement[rank][file];
+        string select_piece_fen = "";
+        string target_piece_fen = "";
 
+        if (select_piece_id != "") {
+                select_piece_fen = this->pieces.at(select_piece_id)->fen;
+        }
+
+        if (target_piece_id != "") {
+                target_piece_fen = this->pieces.at(target_piece_id)->fen;
+        }
+
+        // IF selected AND target spot is not empty THEN set same color
         if (isSelected && !isEmpty) {
                 isSameColor = this->pieces.at(this->placement[rank][file])->color == this->pieces.at(state_manager::instance().selected)->color ? true : false;
         }
 
+        // IF not selected AND target spot is empty THEN ignore
+        if (!isSelected && isEmpty) {
+                return;
+        }
+
+        // IF not selected and target spot is not empty THEN select target PIECE
+        if (!isSelected && !isEmpty) {
+                handle_select_piece(target_piece_id);
+                return;
+        }
+
+        // IF selected AND target spot is the same color as selected THEN select target piece
         if (isSelected && isSameColor) {
                 handle_select_piece(target_piece_id);
                 return;
         }
 
-        if (!isSelected && isEmpty) {
+        // Passant
+        if (isSelected && isEmpty && ((select_piece_fen == "P" && rank == 5) || select_piece_fen == "p" && rank == 2)) {
+                if (select_piece_fen == "P") {
+                        target_piece_id = this->placement[rank - 1][file];
+                } else if (select_piece_fen == "p") {
+                        target_piece_id = this->placement[rank + 1][file];
+                }
+                if (target_piece_id == "") {
+                        return;
+                }
+                if (!this->pieces.at(target_piece_id)->two_square && this->pieces.at(target_piece_id)->moved == 1) {
+                        return;
+                }
+                handle_special_take_piece(select_piece_id, target_piece_id);
+        }
+
+        // TODO
+        // * Castle
+        // * Check clear space
+        // * Check if checked
+        // * Check if any space is line of sight
+        if (isSelected && !isEmpty && ((select_piece_fen == "K" && target_piece_fen == "R") || (select_piece_fen == "k" && target_piece_fen == "r"))) {
                 return;
         }
 
+        // IF selected AND not same color AND not empty THEN capture target piece
         if (isSelected && !isSameColor && !isEmpty) {
                 handle_take_piece(select_piece_id, target_piece_id);
                 return;
         }
 
+        // IF selected and target spot is empty THEN move selected piece
         if (isSelected && isEmpty) {
                 handle_move_piece(select_piece_id, rank, file);
-                return;
-        }
-
-        if (!isSelected) {
-                handle_select_piece(target_piece_id);
                 return;
         }
 }
 
 void board::insert_piece(unique_ptr<piece> p) {
-        // std::cout << "Loading piece id=" << p->id << " at rank=" << p->rank << " file=" << p->file << std::endl;
         this->placement[p->rank][p->file] = p->id;
         string id = p->id;
         pieces.emplace(id, std::move(p));

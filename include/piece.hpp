@@ -22,11 +22,19 @@ class piece {
         int rank;
         int file;
         int value;
+        int moved;
+        bool two_square;
         COLOR color;
-        vector<pair<int, int>> mask;
+        vector<pair<int, int>> movement_mask;
+        vector<pair<int, int>> capture_mask;
+        vector<pair<int, int>> special_movement_mask;
+        vector<pair<int, int>> special_capture_mask;
         int texture_id;
 
         virtual pair<int, int> valid_move(int rank, int file);
+        virtual pair<int, int> valid_special_move(int rank, int file);
+        virtual pair<int, int> valid_capture(int rank, int file);
+        virtual pair<int, int> valid_special_capture(int rank, int file);
 
         piece();
         virtual void update_color(COLOR color);
