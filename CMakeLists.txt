@@ -30,19 +30,20 @@ else()
 endif()
 
 set(SOURCES
-	src/board.cpp
-	src/stb_image_implementation.cpp
-	src/fen.cpp
-	src/uuid.cpp
-	src/texture_manager.cpp
-	src/piece.cpp
-	src/state_manager.cc
-	src/movement_mask.cpp
-	src/menu.cpp
+	src/ActionMask.cc
+	src/BoardState.cc
+	src/Display.cc
+	src/FenReader.cc
+	src/Piece.cc
+	src/PositionMap.cc
+	src/TextureManager.cc
+	src/Mouse.cc
+	src/SelectionState.cc
+	src/stb_image.cc
 )
 add_library(lib OBJECT ${SOURCES})
 target_include_directories(lib PUBLIC ${PROJECT_SOURCE_DIR}/include)
-add_executable(main app/main.cpp)
+add_executable(main app/main.cc)
 target_link_libraries(main
     PRIVATE
 	lib
@@ -53,3 +54,4 @@ set_target_properties(lib main PROPERTIES
     CXX_STANDARD_REQUIRED NO
     CXX_EXTENSIONS NO
 )
+
