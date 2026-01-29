@@ -1,5 +1,6 @@
 #include "../include/BoardState.h"
 #include "../include/PositionMap.h"
+#include "Piece.h"
 #include <unordered_map>
 #include <utility>
 
@@ -8,7 +9,7 @@ std::unordered_map<std::string, Piece *> init() {
         for (int file = 0; file < 8; ++file) {
                 for (int rank = 0; rank < 8; ++rank) {
                         std::string id = PositionMap::get({file, rank});
-                        data.emplace(id, new Piece(Label::EMPTY, Color::EMPTY, 0, 0));
+                        data.emplace(id, EMPTY_PIECE);
                 }
         }
         return data;
@@ -36,7 +37,11 @@ Piece *BoardState::get(std::string id) {
 
 void BoardState::replace(std::string from, std::string to) {
         Piece *piece = BoardState::instance().data.at(from);
-        BoardState::instance().data.at(from) = new Piece(Label::EMPTY, Color::EMPTY, -1, -1);
+        if (!piece->actionTableContains(to)) {
+                return;
+        }
+        BoardState::instance().data.at(from) = EMPTY_PIECE;
+        piece->id = to;
         BoardState::instance().data.at(to) = piece;
 }
 

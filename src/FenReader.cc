@@ -1,6 +1,7 @@
 #include "FenReader.h"
 #include "PairHash.h"
 #include "Piece.h"
+#include "PositionMap.h"
 
 static const std::unordered_map<char, Label> fen2label = {{'p', Label::PAWN}, {'n', Label::KNIGHT}, {'b', Label::BISHOP}, {'r', Label::ROOK}, {'q', Label::QUEEN}, {'k', Label::KING}};
 
@@ -24,7 +25,7 @@ std::unordered_map<std::pair<int, int>, Piece *, PairHash> FenReader::readFen(co
                         file += c - '0';
                         continue;
                 }
-                Piece *p = new Piece(fen2label.at(tolower(c)), islower(c) ? Color::BLACK : Color::WHITE, file, rank);
+                Piece *p = new Piece(fen2label.at(tolower(c)), islower(c) ? Color::BLACK : Color::WHITE, PositionMap::get({file, rank}));
                 map.insert_or_assign((std::pair<int, int>){file, rank}, p);
                 file++;
         }

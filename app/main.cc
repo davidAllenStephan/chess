@@ -6,7 +6,6 @@
 #include <GLUT/glut.h>
 #include <OpenGL/gl3.h>
 #include <iostream>
-#include <ostream>
 #include <unordered_map>
 #include <utility>
 
@@ -30,10 +29,8 @@ void mouse(int button, int state, int x, int y) {
 
 int main(int argc, char *argv[]) {
         std::unordered_map<std::pair<int, int>, Piece *, PairHash> fen = FenReader::readFen("../assets/fens/start.fen");
-        std::cout << BoardState::toString() << std::endl;
         BoardState::load(fen);
         std::cout << BoardState::toString() << std::endl;
-        BoardState::get("a2")->printActionTable();
         glutInit(&argc, argv);
         glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
         glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);

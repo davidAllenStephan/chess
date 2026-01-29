@@ -2,15 +2,17 @@
 #include "../include/ActionMask.h"
 #include "../include/BoardState.h"
 #include "../include/PositionMap.h"
+#include <cstdlib>
 #include <iostream>
+#include <set>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
-Piece::Piece(Label label, Color color, int file, int rank) {
+Piece::Piece(Label label, Color color, std::string id) {
         this->label = label;
         this->color = color;
-        this->pos.first = file;
-        this->pos.second = rank;
+        this->id = id;
 }
 
 Piece::~Piece() = default;
@@ -30,7 +32,7 @@ void Piece::printActionTable() {
         std::string out;
         out += this->toString();
         out += "\n";
-        for (std::pair<std::string, Piece *> p : this->action_table) {
+        for (const std::pair<std::string, Piece *> &p : this->action_table) {
                 out += p.first;
                 out += ": ";
                 out += p.second->toString();
@@ -41,49 +43,31 @@ void Piece::printActionTable() {
 
 void Piece::updateActionTable() {
         this->action_table.clear();
-        std::vector<std::pair<int, int>> mask = ActionMask::get(this->label);
-        for (std::pair<int, int> action : mask) {
-                int file = getFile() + action.first;
-                int rank = getRank() + action.second;
-                if ((rank < 0 || rank >= 8) || (file < 0 || file >= 8)) {
-                        continue;
+        std::set<std::pair<int, int>> mask = ActionMask::get(this);
+        std::pair<int, int> position = PositionMap::getId(this->id);
+        for (std::pair<int, int> direction : mask) {
+                int i_file = position.first + direction.first;
+                int i_rank = position.second + direction.second;
+                while (i_file < 8 && i_rank < 8 && i_file >= 0 && i_rank >= 0) {
+                        std::string target_id = PositionMap::get({i_file, i_rank});
+                        Piece *p = BoardState::get(target_id);
+                        if (p->label != Label::EMPTY) {
+                                break;
+                        }
+                        this->action_table.insert({target_id, p});
+                        if ((this->label == Label::PAWN) || (this->label == Label::KING) || (this->label == Label::KNIGHT)) {
+                                break;
+                        }
+                        i_file += direction.first;
+                        i_rank += direction.second;
                 }
-                std::string id = PositionMap::get({file, rank});
-                Piece *p = BoardState::get(id);
-                this->action_table.insert({id, p});
         }
 }
 
-int Piece::getFile() {
-        return this->pos.first;
+bool Piece::actionTableContains(std::string id) {
+        return this->action_table.count(id) == 0 ? false : true;
 }
 
-int Piece::getRank() {
-        return this->pos.second;
-}
-
-std::pair<int, int> Piece::getPos() {
-        return this->pos;
-}
-
-void Piece::setFile(int file) {
-        this->pos.first = file;
-}
-
-void Piece::setRank(int rank) {
-        this->pos.second = rank;
-}
-
-void Piece::setPos(std::pair<int, int> p) {
-        this->pos = p;
-}
-
-Piece *Piece::get(std::string position) {
-        return this->action_table.at(position);
-}
-
-void Piece::play(std::string position) {
-        if (this->action_table.count(position) != 0) {
-                BoardState::replace(position, PositionMap::get(this->getPos()));
-        }
+Piece *Piece::get(std::string id) {
+        return this->action_table.at(id);
 }

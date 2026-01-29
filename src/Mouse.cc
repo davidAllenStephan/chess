@@ -12,9 +12,22 @@ void Mouse::handleMouse(int button, int state, int x, int y, int window_width, i
         }
         std::pair<int, int> position = {x / (window_height / 8), 7 - (y / (window_height / 8))};
         if (SelectionState::instance().selected == "") {
-                SelectionState::instance().selected = PositionMap::get(position);
+                if (BoardState::get(PositionMap::get(position))->label == Label::EMPTY) {
+                        return;
+                } else {
+                        SelectionState::instance().selected = PositionMap::get(position);
+                        BoardState::get(SelectionState::instance().selected)->updateActionTable();
+                        return;
+                }
         } else {
-                BoardState::replace(PositionMap::get(position), SelectionState::instance().selected);
-                SelectionState::instance().selected = "";
+                if (SelectionState::instance().selected == PositionMap::get(position)) {
+                        SelectionState::instance().selected = "";
+                        return;
+                } else {
+                        BoardState::replace(SelectionState::instance().selected, PositionMap::get(position));
+                        SelectionState::instance().selected = "";
+                        return;
+                }
         }
+        return;
 }
